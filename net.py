@@ -132,7 +132,6 @@ class Net(nn.Module):
         assert target.requires_grad is False
         return self.mse_loss(input, target)
 
-    # fuck this as well
     def calc_style_loss(self, input, target):
         assert input.size() == target.size()
         assert target.requires_grad is False
