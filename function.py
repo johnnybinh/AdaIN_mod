@@ -3,7 +3,7 @@ import torch
 
 def calc_gram_matrix(feat):
     (b, ch, h, w) = feat.size()  # batch_size, channel, height, width
-    feat = feat.view(b, ch, h * w)  # flatten the feature map
+    feat = feat.contiguous().view(b, ch, h * w)  # flatten the feature map
     feat_t = feat.transpose(1, 2)  # transpose the feature map
     gram = torch.bmm(feat, feat_t)  # compute the gram matrix
     return gram
