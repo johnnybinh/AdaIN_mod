@@ -1,0 +1,1 @@
+CUDA_VISIBLE_DEVICES=cpu python test.py --content_dir input/content/ --style_dir input/style/
