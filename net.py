@@ -133,11 +133,11 @@ class Net(nn.Module):
         return self.mse_loss(input, target)
 
     # fuck this as well
-    def calc_style_loss(self, input, target, device):
+    def calc_style_loss(self, input, target):
         assert input.size() == target.size()
         assert target.requires_grad is False
         return self.mse_loss(
-            calc_gram_matrix(input, device), calc_gram_matrix(target, device)
+            calc_gram_matrix(input), calc_gram_matrix(target)
         )  # modified to use gram matrix loss
 
     def forward(self, content, style, alpha=1.0):
