@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=cpu python test.py --content_dir input/content/ --style_dir input/style/
+CUDA_VISIBLE_DEVICES=cpu python test.py --content input/content/avril.jpg --style input/style/asheville.jpg
