@@ -1,11 +1,24 @@
 import torch.nn as nn
 from torchvision import models
-
+import torchsummary
 from function import adaptive_instance_normalization as adain
 from function import calc_mean_std
 from function import calc_gram_matrix
 
-decoder = nn.Sequential()
+encoder_resnet = models.resnet18(pretrained=True)
+decoder_resnet = nn.Sequential(
+    nn.Upsample(scale_factor=2, mode="nearest"),  # from H/16 to H/8
+    nn.Conv2d(256, 128, 3, padding=1),
+    nn.ReLU(inplace=True),
+    nn.Upsample(scale_factor=2, mode="nearest"),  # from H/8 to H/4
+    nn.Conv2d(128, 64, 3, padding=1),
+    nn.ReLU(inplace=True),
+    nn.Upsample(scale_factor=2, mode="nearest"),  # from H/4 to H/2
+    nn.Conv2d(64, 64, 3, padding=1),
+    nn.ReLU(inplace=True),
+    nn.Upsample(scale_factor=2, mode="nearest"),  # from H/2 to H
+    nn.Conv2d(64, 3, 3, padding=1),
+)
 
 decoder = nn.Sequential(
     nn.ReflectionPad2d((1, 1, 1, 1)),
@@ -98,14 +111,19 @@ vgg = nn.Sequential(
 
 
 class Net(nn.Module):
-    def __init__(self, encoder, decoder):
+    def __init__(self, resnet_encoder, resnet_decoder):
         super(Net, self).__init__()
-        enc_layers = list(encoder.children())
-        self.enc_1 = nn.Sequential(*enc_layers[:4])  # input -> relu1_1
-        self.enc_2 = nn.Sequential(*enc_layers[4:11])  # relu1_1 -> relu2_1
-        self.enc_3 = nn.Sequential(*enc_layers[11:18])  # relu2_1 -> relu3_1
-        self.enc_4 = nn.Sequential(*enc_layers[18:31])  # relu3_1 -> relu4_1
-        self.decoder = decoder
+        enc_layers = list(resnet_encoder.children())
+        self.enc_1 = nn.Sequential(
+            resnet_encoder.conv1,
+            resnet_encoder.bn1,
+            resnet_encoder.relu,
+            resnet_encoder.maxpool,  # 7x7 conv, stride=2
+        )  # stem block -> relu1_1
+        self.enc_2 = resnet_encoder.layer1  # output -> layer1
+        self.enc_3 = resnet_encoder.layer2  # layer1 -> layer2
+        self.enc_4 = resnet_encoder.layer3  # layer2 -> layer3
+        self.decoder = resnet_decoder
         self.mse_loss = nn.MSELoss()
 
         # fix the encoder
@@ -113,7 +131,10 @@ class Net(nn.Module):
             for param in getattr(self, name).parameters():
                 param.requires_grad = False
 
-    # extract relu1_1, relu2_1, relu3_1, relu4_1 from input image
+    def print_summary(self):
+        torchsummary.summary(self, (3, 256, 256))
+
+    # extract stem -> layer1 -> layer2 -> layer3 from input image
     def encode_with_intermediate(self, input):
         results = [input]
         for i in range(4):
@@ -121,7 +142,7 @@ class Net(nn.Module):
             results.append(func(results[-1]))
         return results[1:]
 
-    # extract relu4_1 from input image
+    # extract layer3 from input image
     def encode(self, input):
         for i in range(4):
             input = getattr(self, "enc_{:d}".format(i + 1))(input)
