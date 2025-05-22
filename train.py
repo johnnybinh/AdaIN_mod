@@ -93,8 +93,8 @@ log_dir = Path(args.log_dir)
 log_dir.mkdir(exist_ok=True, parents=True)
 writer = SummaryWriter(log_dir=str(log_dir))
 
-resnet_decoder = net.resnet_decoder
-resnet_encoder = net.resnet_encoder
+resnet_decoder = net.decoder_resnet
+resnet_encoder = net.encoder_resnet
 
 # vgg.load_state_dict(torch.load(args.vgg))
 # vgg = nn.Sequential(*list(vgg.children())[:31])
