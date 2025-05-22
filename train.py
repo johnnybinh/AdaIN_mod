@@ -93,12 +93,15 @@ log_dir = Path(args.log_dir)
 log_dir.mkdir(exist_ok=True, parents=True)
 writer = SummaryWriter(log_dir=str(log_dir))
 
-resnet_decoder = net.decoder_resnet
-resnet_encoder = net.encoder_resnet
+decoder = net.decoder
+vgg = net.vgg
 
-# vgg.load_state_dict(torch.load(args.vgg))
-# vgg = nn.Sequential(*list(vgg.children())[:31])
-network = net.Net(resnet_encoder=resnet_encoder, resnet_decoder=resnet_decoder)
+resnet_encoder = net.encoder_resnet
+resnet_decoder = net.decoder_resnet
+
+vgg.load_state_dict(torch.load(args.vgg))
+vgg = nn.Sequential(*list(vgg.children())[:31])
+network = net.Net(resnet_encoder, resnet_decoder)
 network.train()
 network.to(device)
 
@@ -147,7 +150,5 @@ for i in tqdm(range(args.max_iter)):
         state_dict = net.decoder.state_dict()
         for key in state_dict.keys():
             state_dict[key] = state_dict[key].to(torch.device("cpu"))
-        torch.save(
-            state_dict, save_dir / "resnet_decoder_iter_{:d}.pth.tar".format(i + 1)
-        )
+        torch.save(state_dict, save_dir / "decoder_iter_{:d}.pth.tar".format(i + 1))
 writer.close()
