@@ -7,3 +7,5 @@ logs/*
 
 
 son.ipynb
+
+__pycache__/*
