@@ -127,6 +127,12 @@ class Net(nn.Module):
             input = getattr(self, "enc_{:d}".format(i + 1))(input)
         return input
 
+    # extract up to relu2_1 only
+    def encode_layer2(self, input):
+        for i in range(2):
+            input = getattr(self, "enc_{:d}".format(i + 1))(input)
+        return input
+
     def calc_content_loss(self, input, target):
         assert input.size() == target.size()
         assert target.requires_grad is False
@@ -150,7 +156,8 @@ class Net(nn.Module):
         assert 0 <= alpha <= 1
         style_feats = self.encode_with_intermediate(style)
         content_feat = self.encode(content)
-        t = adain(content_feat, style_feats[-1])
+        content_feat_relu2 = self.encode_layer2(content)
+        t = adain(content_feat_relu2, style_feats[1])
         t = alpha * t + (1 - alpha) * content_feat
 
         g_t = self.decoder(t)
