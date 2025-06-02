@@ -158,7 +158,7 @@ class Net(nn.Module):
         content_feat = self.encode(content)
         content_feat_relu2 = self.encode_layer2(content)
         t = adain(content_feat_relu2, style_feats[1])
-        t = alpha * t + (1 - alpha) * content_feat
+        t = alpha * t + (1 - alpha) * content_feat_relu2
 
         g_t = self.decoder(t)
         g_t_feats = self.encode_with_intermediate(g_t)
