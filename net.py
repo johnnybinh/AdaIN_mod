@@ -132,12 +132,19 @@ class Net(nn.Module):
         assert target.requires_grad is False
         return self.mse_loss(input, target)
 
-    def calc_style_loss(self, input, target):
+    # def calc_style_loss(self, input, target):
+    #     assert input.size() == target.size()
+    #     assert target.requires_grad is False
+    #     return self.mse_loss(
+    #         calc_gram_matrix(input), calc_gram_matrix(target)
+    #     )  
+
+    def calc_style_loss(self,input, target):
         assert input.size() == target.size()
         assert target.requires_grad is False
-        return self.mse_loss(
-            calc_gram_matrix(input), calc_gram_matrix(target)
-        )  # modified to use gram matrix loss
+        input_mean, input_std = calc_mean_std(input)
+        target_mean, target_std = calc_mean_std(target)
+        return self.mse_loss(input_mean,target_mean) + self.mse_loss(input_std, target_std)
 
     def forward(self, content, style, alpha=1.0):
         assert 0 <= alpha <= 1
