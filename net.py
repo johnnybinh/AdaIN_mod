@@ -164,10 +164,10 @@ class Net(nn.Module):
 
         # extract at relu2_1 
         t1 = adain(content_feat_immediate[1], style_feats[1])
-        t1 = alpha*t+(1-alpha) * content_feat_immediate[1]
+        t1 = alpha*t1+(1-alpha) * content_feat_immediate[1]
         # extract at relu4_1
         t2 = adain(content_feat_immediate[-1], style_feats[-1])
-        t2 = alpha*t+(1-alpha) * content_feat_immediate[-1]
+        t2 = alpha*t2+(1-alpha) * content_feat_immediate[-1]
         t2h, t2w = t2.shape[2:]
 
         t1_down = nn.functional.interpolate(t1,(t2h,t2w), mode='bilinear')
