@@ -1,6 +1,5 @@
 import torch.nn as nn
 from torchvision import models
-
 from function import adaptive_instance_normalization as adain
 from function import calc_mean_std
 from function import calc_gram_matrix
@@ -70,7 +69,7 @@ vgg = nn.Sequential(
     nn.ReLU(),  # relu3-4
     nn.MaxPool2d((2, 2), (2, 2), (0, 0), ceil_mode=True),
     nn.ReflectionPad2d((1, 1, 1, 1)),
-    nn.Conv2d(256, 512, (3, 3)),
+    nn.Conv2d(256, 512, (3, 3)), # 256 -> 512 channel, 3x3 padding
     nn.ReLU(),  # relu4-1, this is the last layer used
     nn.ReflectionPad2d((1, 1, 1, 1)),
     nn.Conv2d(512, 512, (3, 3)),
@@ -105,6 +104,7 @@ class Net(nn.Module):
         self.enc_2 = nn.Sequential(*enc_layers[4:11])  # relu1_1 -> relu2_1
         self.enc_3 = nn.Sequential(*enc_layers[11:18])  # relu2_1 -> relu3_1
         self.enc_4 = nn.Sequential(*enc_layers[18:31])  # relu3_1 -> relu4_1
+     
         self.decoder = decoder
         self.mse_loss = nn.MSELoss()
 
@@ -155,10 +155,24 @@ class Net(nn.Module):
     def forward(self, content, style, alpha=1.0):
         assert 0 <= alpha <= 1
         style_feats = self.encode_with_intermediate(style)
-        content_feat = self.encode(content)
-        content_feat_relu2 = self.encode_layer2(content)
-        t = adain(content_feat_relu2, style_feats[1])
-        t = alpha * t + (1 - alpha) * content_feat_relu2
+        # content_feat = self.encode(content)
+        # content_feat_relu2 = self.encode_layer2(content)
+        # t = adain(content_feat_relu2, style_feats[1])
+        # t = alpha * t + (1 - alpha) * content_feat_relu2
+        content_feat_immediate = self.encode_with_intermediate(content)
+
+
+        # extract at relu2_1 
+        t1 = adain(content_feat_immediate[1], style_feats[1])
+        t1 = alpha*t+(1-alpha) * content_feat_immediate[1]
+        # extract at relu4_1
+        t2 = adain(content_feat_immediate[-1], style_feats[-1])
+        t2 = alpha*t+(1-alpha) * content_feat_immediate[-1]
+        t2h, t2w = t2.shape[2:]
+
+        t1_down = nn.functional.interpolate(t1,(t2h,t2w), mode='bilinear')
+
+        t  = t2 + t1
 
         g_t = self.decoder(t)
         g_t_feats = self.encode_with_intermediate(g_t)
