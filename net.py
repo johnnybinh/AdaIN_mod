@@ -172,7 +172,7 @@ class Net(nn.Module):
 
         t1_down = nn.functional.interpolate(t1,(t2h,t2w), mode='bilinear')
 
-        t  = t2 + t1down
+        t  = t2 + t1_down
 
         g_t = self.decoder(t)
         g_t_feats = self.encode_with_intermediate(g_t)
