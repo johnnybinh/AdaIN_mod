@@ -139,13 +139,13 @@ else:
 
 
 ## init encoder and decoder
-decoder = net.decoder
+decoder = net.decoder()
 vgg = net.vgg
 
 decoder.eval()
 vgg.eval()
 
-decoder.load_state_dict(torch.load(args.decoder))
+# decoder.load_state_dict(torch.load(args.decoder))
 vgg.load_state_dict(torch.load(args.vgg))
 vgg = nn.Sequential(*list(vgg.children())[:31])
 
