@@ -91,6 +91,7 @@ class Decoder(nn.Module):
         h = self.up(h)
         h = self.RC8(h)
         h = self.RC9(h)
+        return h
 
 
 # maybe later
