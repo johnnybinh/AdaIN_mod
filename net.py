@@ -51,6 +51,7 @@ class RC(nn.Module):
         self.R = nn.ReflectionPad2d((pad_size, pad_size, pad_size, pad_size))
         self.C = nn.Conv2d(in_channel, out_channel, kernel_size)
         self.Relu = nn.ReLU()
+        self.activated = activated
 
     def forward(self, x):
         h = self.R(x)
