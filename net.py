@@ -74,7 +74,7 @@ class Decoder(nn.Module):
         self.RC6 = RC(128, 128, 3, 1)
         self.RC7 = RC(128, 64, 3, 1)
         self.RC8 = RC(64, 64, 3, 1)
-        self.RC9 = RC(64, 64, 3, 1)
+        self.RC9 = RC(64, 3, 3, 1, False)
 
     def forward(self, t1, t2):  # t1 = relu_21, t2 = relu4_1
         h = self.RC1(t2)
@@ -227,6 +227,7 @@ class Net(nn.Module):
         t2 = alpha * t2 + (1 - alpha) * content_feat_immediate[-1]
 
         g_t = self.decoder(t1, t2)
+        print(g_t.shape)
         g_t_feats = self.encode_with_intermediate(g_t)
 
         # g_t = self.decoder(t)
