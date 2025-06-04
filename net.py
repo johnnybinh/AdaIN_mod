@@ -70,7 +70,7 @@ class Decoder(nn.Module):
         self.RC2 = RC(256, 256, 3, 1)
         self.RC3 = RC(256, 256, 3, 1)
         self.RC4 = RC(256, 256, 3, 1)
-        self.RC5 = RC(256 * 2, 128, 3, 1)  # 2_1 onward
+        self.RC5 = RC(384, 128, 3, 1)  # 2_1 onward
         self.RC6 = RC(128, 128, 3, 1)
         self.RC7 = RC(128, 64, 3, 1)
         self.RC8 = RC(64, 64, 3, 1)
