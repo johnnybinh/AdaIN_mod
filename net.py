@@ -48,7 +48,7 @@ class RC(nn.Module):
         self, in_channel, out_channel, kernel_size, pad_size=1, activated=True
     ):
         super().__init__()
-        self.R = nn.ReflectionPad2d((in_channel, in_channel, in_channel, in_channel))
+        self.R = nn.ReflectionPad2d((pad_size, pad_size, pad_size, pad_size))
         self.C = nn.Conv2d(in_channel, out_channel, kernel_size)
         self.Relu = nn.ReLU()
 
