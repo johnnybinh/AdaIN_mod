@@ -210,13 +210,9 @@ class Net(nn.Module):
             input_std, target_std
         )
 
-    def forward(self, content, style, alpha=1.0):
+    def generate_image(self, content, style, alpha=1.0):
         assert 0 <= alpha <= 1
         style_feats = self.encode_with_intermediate(style)
-        # content_feat = self.encode(content)
-        # content_feat_relu2 = self.encode_layer2(content)
-        # t = adain(content_feat_relu2, style_feats[1])
-        # t = alpha * t + (1 - alpha) * content_feat_relu2
         content_feat_immediate = self.encode_with_intermediate(content)
 
         # extract at relu2_1
@@ -225,6 +221,10 @@ class Net(nn.Module):
         # extract at relu4_1
         t2 = adain(content_feat_immediate[-1], style_feats[-1])
         t2 = alpha * t2 + (1 - alpha) * content_feat_immediate[-1]
+        return style_feats, content_feat_immediate, t1, t2
+
+    def forward(self, content, style, alpha=1.0):
+        style_feats, content_feats, t1, t2 = self.generate_image(content, style)
 
         g_t = self.decoder(t1, t2)
         print(g_t.shape)
