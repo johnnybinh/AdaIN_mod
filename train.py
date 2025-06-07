@@ -143,8 +143,8 @@ for i in tqdm(range(args.max_iter)):
     writer.add_scalar("loss_content", loss_c.item(), i + 1)
     writer.add_scalar("loss_style", loss_s.item(), i + 1)
 
-    print("loss_content: ", loss_c.item)
-    print("loss_style: ", loss_s.item)
+    # print("loss_content: ", loss_c.item)
+    # print("loss_style: ", loss_s.item)
 
     if (i + 1) % args.save_model_interval == 0 or (i + 1) == args.max_iter:
         state_dict = net.decoder.state_dict()
