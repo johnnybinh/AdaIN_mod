@@ -227,7 +227,7 @@ class Net(nn.Module):
         style_feats, content_feats, t1, t2 = self.generate_image(content, style)
 
         g_t = self.decoder(t1, t2)
-        print(g_t.shape)
+        #print(g_t.shape)
         g_t_feats = self.encode_with_intermediate(g_t)
 
         # g_t = self.decoder(t)
