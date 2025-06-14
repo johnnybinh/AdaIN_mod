@@ -131,10 +131,11 @@ for i in tqdm(range(args.max_iter)):
     adjust_learning_rate(optimizer, iteration_count=i)
     content_images = next(content_iter).to(device)
     style_images = next(style_iter).to(device)
-    loss_c, loss_s = network(content_images, style_images)
+    loss_c, loss_s, loss_e = network(content_images, style_images)
     loss_c = args.content_weight * loss_c
     loss_s = args.style_weight * loss_s
-    loss = loss_c + loss_s
+    # for now loss e weight is 1
+    loss = loss_c + loss_s + loss_e
 
     optimizer.zero_grad()
     loss.backward()
@@ -142,6 +143,7 @@ for i in tqdm(range(args.max_iter)):
 
     writer.add_scalar("loss_content", loss_c.item(), i + 1)
     writer.add_scalar("loss_style", loss_s.item(), i + 1)
+    writer.add_scalar("loss_edge", loss_e.item(), i + 1)
 
     # print("loss_content: ", loss_c.item)
     # print("loss_style: ", loss_s.item)

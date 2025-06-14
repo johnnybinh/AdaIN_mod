@@ -8,3 +8,5 @@ torchvision
 tqdm==4.35.0
 opencv-python==4.11.0.86
 imageio==2.9.0
+kornia==0.8.1
+kornia-rs==0.1.9

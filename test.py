@@ -10,8 +10,6 @@ from torchvision.utils import save_image
 import net
 from function import adaptive_instance_normalization, coral
 
-network = net.Net()
-
 
 def test_transform(size, crop):
     transform_list = []
@@ -26,7 +24,7 @@ def test_transform(size, crop):
 
 def style_transfer(vgg, decoder, content, style, alpha=1.0, interpolation_weights=None):
     assert 0.0 <= alpha <= 1.0
-    feat1, feat2 = network.generate_image(content, style, alpha=alpha)
+    c_map, s_map, feat1, feat2 = network.generate_image(content, style, alpha=alpha)
     return decoder(feat1, feat2)
 
 
@@ -129,11 +127,9 @@ else:
     style_paths = [f for f in style_dir.glob("*")]
 
 
-## init encoder and decoder
-decoder = net.Net.decoder()
 vgg = net.vgg
 
-decoder.eval()
+# decoder.eval()
 vgg.eval()
 
 # decoder.load_state_dict(torch.load(args.decoder))
@@ -141,9 +137,12 @@ vgg.load_state_dict(torch.load(args.vgg))
 vgg = nn.Sequential(*list(vgg.children())[:31])
 
 vgg.to(device)
-decoder.to(device)
 
-net = net.Net()
+network = net.Net(vgg, device)
+decoder = network.decoder
+decoder.load_state_dict(torch.load(args.decoder))
+
+net = net.Net(vgg, device)
 
 # transform content and style to tensor
 content_tf = test_transform(args.content_size, args.crop)

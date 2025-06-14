@@ -1,1 +1,1 @@
-CUDA_VISIBLE_DEVICES=cpu python test.py --content input/content/avril.jpg --style input/style/asheville.jpg
+CUDA_VISIBLE_DEVICES=cpu python test.py --content input/content/brad_pitt.jpg --style input/style/stairy_night.jpg --decoder ./models/decoder_iter_160000.pth.tar

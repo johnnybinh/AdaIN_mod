@@ -4,6 +4,7 @@ from torchvision import models
 from function import adaptive_instance_normalization as adain
 from function import calc_mean_std
 from function import calc_gram_matrix
+import kornia as k
 
 decoder = nn.Sequential()
 
@@ -194,12 +195,12 @@ class Net(nn.Module):
         assert target.requires_grad is False
         return self.mse_loss(input, target)
 
-    # def calc_style_loss(self, input, target):
-    #     assert input.size() == target.size()
-    #     assert target.requires_grad is False
-    #     return self.mse_loss(
-    #         calc_gram_matrix(input), calc_gram_matrix(target)
-    #     )
+    def calc_sobel_loss(self, input, target):
+        assert input.size() == target.size()
+        assert target.requires_grad is False
+        input_sobel = k.filters.sobel(input)
+        target_sobel = k.filters.sobel(target)
+        return self.mse_loss(input_sobel, target_sobel)
 
     def calc_style_loss(self, input, target):
         assert input.size() == target.size()
@@ -227,7 +228,7 @@ class Net(nn.Module):
         style_feats, content_feats, t1, t2 = self.generate_image(content, style)
 
         g_t = self.decoder(t1, t2)
-        #print(g_t.shape)
+        # print(g_t.shape)
         g_t_feats = self.encode_with_intermediate(g_t)
 
         # g_t = self.decoder(t)
@@ -235,6 +236,7 @@ class Net(nn.Module):
 
         loss_c = self.calc_content_loss(g_t_feats[-1], t2)  # compare with lower level
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
+        loss_e = self.calc_sobel_loss(content_feats[-1], t2)
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
-        return loss_c, loss_s
+        return loss_c, loss_s, loss_e
