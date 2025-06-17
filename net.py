@@ -198,9 +198,20 @@ class Net(nn.Module):
     def calc_sobel_loss(self, input, target):
         assert input.size() == target.size()
         assert target.requires_grad is False
-        input_sobel = k.filters.sobel(input)
-        target_sobel = k.filters.sobel(target)
-        return self.mse_loss(input_sobel, target_sobel)
+        # setup blur
+        blur = k.filters.GaussianBlur2d((5, 5), (1.5, 1.5))
+        target_blur = blur(target)
+        # generate edge map
+        input_gray, target_gray = k.color.rgb_to_grayscale(
+            input
+        ), k.color.rgb_to_grayscale(target_blur)
+        # canny operator
+        canny = k.filters.Canny(low_threshold=0.5, high_threshold=0.99)
+
+        input_canny_mag, input_canny = canny(input_gray)
+        target_canny_mag, target_canny = canny(target_gray)
+
+        return self.mse_loss(input_canny, target_canny)
 
     def calc_style_loss(self, input, target):
         assert input.size() == target.size()
@@ -234,9 +245,13 @@ class Net(nn.Module):
         # g_t = self.decoder(t)
         # g_t_feats = self.encode_with_intermediate(g_t)
 
-        loss_c = self.calc_content_loss(g_t_feats[-1], t2)  # compare with lower level
+        loss_c = self.calc_content_loss(
+            g_t_feats[-1], content_feats[-1]
+        )  # compare with the content
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
-        loss_e = self.calc_sobel_loss(content_feats[-1], t2)
+        loss_e = self.calc_sobel_loss(content_feats[1], t1) + self.calc_sobel_loss(
+            content_feats[-1], t2
+        )
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
         return loss_c, loss_s, loss_e
