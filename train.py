@@ -86,7 +86,7 @@ parser.add_argument("--n_threads", type=int, default=16)
 parser.add_argument("--save_model_interval", type=int, default=10000)
 args = parser.parse_args()
 
-device = torch.device("cuda")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 save_dir = Path(args.save_dir)
 save_dir.mkdir(exist_ok=True, parents=True)
 log_dir = Path(args.log_dir)
@@ -125,7 +125,7 @@ style_iter = iter(
     )
 )
 
-optimizer = torch.optim.Adam(network.decoder.parameters(), lr=args.lr)
+optimizer = torch.optim.LBFGS(network.decoder.parameters(), lr=args.lr)
 
 for i in tqdm(range(args.max_iter)):
     adjust_learning_rate(optimizer, iteration_count=i)

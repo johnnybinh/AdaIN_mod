@@ -202,14 +202,14 @@ class Net(nn.Module):
         blur = k.filters.GaussianBlur2d((5, 5), (1.5, 1.5))
         target_blur = blur(target)
         # generate edge map
-        input_gray, target_gray = k.color.rgb_to_grayscale(
-            input
-        ), k.color.rgb_to_grayscale(target_blur)
+        # input_gray, target_gray = k.color.rgb_to_grayscale(
+        #     input
+        # ), k.color.rgb_to_grayscale(target_blur)
         # canny operator
         canny = k.filters.Canny(low_threshold=0.5, high_threshold=0.99)
 
-        input_canny_mag, input_canny = canny(input_gray)
-        target_canny_mag, target_canny = canny(target_gray)
+        input_canny_mag, input_canny = canny(input)
+        target_canny_mag, target_canny = canny(target)
 
         return self.mse_loss(input_canny, target_canny)
 
