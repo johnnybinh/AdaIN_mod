@@ -201,11 +201,6 @@ class Net(nn.Module):
         # setup blur
         blur = k.filters.GaussianBlur2d((5, 5), (1.5, 1.5))
         target_blur = blur(target)
-        # generate edge map
-        # input_gray, target_gray = k.color.rgb_to_grayscale(
-        #     input
-        # ), k.color.rgb_to_grayscale(target_blur)
-        # canny operator
         canny = k.filters.Canny(low_threshold=0.5, high_threshold=0.99)
 
         input_canny_mag, input_canny = canny(input)
@@ -249,7 +244,7 @@ class Net(nn.Module):
             g_t_feats[-1], content_feats[-1]
         )  # compare with the content
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
-        loss_e = self.calc_sobel_loss(g_t_feats[-1], content_feats[-1])
+        loss_e = self.calc_sobel_loss(g_t_feats[-1], content_feats[-1])  # left is con
         for i in range(1, 4):
-            loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
+            loss_s += self.calc_style_loss(g_t, content)
         return loss_c, loss_s, loss_e
