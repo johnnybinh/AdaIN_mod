@@ -125,7 +125,7 @@ style_iter = iter(
     )
 )
 
-optimizer = torch.optim.LBFGS(network.decoder.parameters(), lr=args.lr)
+optimizer = torch.optim.Adam(network.decoder.parameters(), lr=args.lr)
 
 for i in tqdm(range(args.max_iter)):
     adjust_learning_rate(optimizer, iteration_count=i)
