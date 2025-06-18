@@ -244,7 +244,7 @@ class Net(nn.Module):
             g_t_feats[-1], content_feats[-1]
         )  # compare with the content
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
-        loss_e = self.calc_sobel_loss(g_t_feats[-1], content_feats[-1])  # left is con
+        loss_e = self.calc_sobel_loss(g_t, content)  # left is con
         for i in range(1, 4):
-            loss_s += self.calc_style_loss(g_t, content)
+            loss_s += self.calc_style_loss(g_t, style_feats[i])
         return loss_c, loss_s, loss_e
