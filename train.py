@@ -135,8 +135,8 @@ for i in tqdm(range(args.max_iter)):
     loss_c = args.content_weight * loss_c
     loss_s = args.style_weight * loss_s
     loss_tv = 1 * loss_tv
-    # for now loss tv weight is 1, this is belong to hyperparmeter tuning
-    loss = loss_c + loss_s + loss.tv
+    # for now loss tv weight is 1, LEARN: this is belong to hyperparmeter tuning
+    loss = loss_c + loss_s + loss_tv
 
     optimizer.zero_grad()
     loss.backward()
