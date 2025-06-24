@@ -6,4 +6,5 @@ experiments/*
 logs/*
 
 
-son.ipynb
+
+*.ipynb

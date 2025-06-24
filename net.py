@@ -157,6 +157,8 @@ class Net(nn.Module):
     def __init__(self, encoder, device):
         super(Net, self).__init__()
         enc_layers = list(encoder.children())
+        # TODO: add self_enc1_1 relu1_1 -> relu 1_2
+        # TODO: add self_enc2_1 for relu 2_2
         self.enc_1 = nn.Sequential(*enc_layers[:4])  # input -> relu1_1
         self.enc_2 = nn.Sequential(*enc_layers[4:11])  # relu1_1 -> relu2_1
         self.enc_3 = nn.Sequential(*enc_layers[11:18])  # relu2_1 -> relu3_1
@@ -184,29 +186,10 @@ class Net(nn.Module):
             input = getattr(self, "enc_{:d}".format(i + 1))(input)
         return input
 
-    # extract up to relu2_1 only
-    def encode_layer2(self, input):
-        for i in range(2):
-            input = getattr(self, "enc_{:d}".format(i + 1))(input)
-        return input
-
     def calc_content_loss(self, input, target):
         assert input.size() == target.size()
         assert target.requires_grad is False
         return self.mse_loss(input, target)
-
-    def calc_sobel_loss(self, input, target):
-        assert input.size() == target.size()
-        assert target.requires_grad is False
-        # setup blur
-        blur = k.filters.GaussianBlur2d((5, 5), (1.5, 1.5))
-        target_blur = blur(target)
-        canny = k.filters.Canny(low_threshold=0.5, high_threshold=0.99)
-
-        input_canny_mag, input_canny = canny(input)
-        target_canny_mag, target_canny = canny(target)
-
-        return self.mse_loss(input_canny, target_canny)
 
     def calc_style_loss(self, input, target):
         assert input.size() == target.size()
@@ -215,6 +198,17 @@ class Net(nn.Module):
         target_mean, target_std = calc_mean_std(target)
         return self.mse_loss(input_mean, target_mean) + self.mse_loss(
             input_std, target_std
+        )
+
+    def calc_total_variation_loss(self, input):
+        # input [b,c,h,w]
+        # 1: mean take everything but not the first row/column
+        # :-1 dont take the last
+        pixel_diff_vertical = input[:, :, 1:, :] - input[:, :, :-1, :]
+        pixel_diff_horizontal = input[:, :, :, 1:] - input[:, :, :, :-1]
+
+        return torch.sum(torch.abs(pixel_diff_vertical)) + torch.sum(
+            torch.abs(pixel_diff_vertical)
         )
 
     def generate_image(self, content, style, alpha=1.0):
@@ -234,17 +228,14 @@ class Net(nn.Module):
         style_feats, content_feats, t1, t2 = self.generate_image(content, style)
 
         g_t = self.decoder(t1, t2)
-        # print(g_t.shape)
+        # g_t shape(b,c,h,w)
         g_t_feats = self.encode_with_intermediate(g_t)
-
-        # g_t = self.decoder(t)
-        # g_t_feats = self.encode_with_intermediate(g_t)
 
         loss_c = self.calc_content_loss(
             g_t_feats[-1], content_feats[-1]
         )  # compare with the content
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
-        loss_e = self.calc_sobel_loss(g_t, content)  # left is con
+        loss_tv = self.calc_total_variation_loss(g_t)
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
-        return loss_c, loss_s, loss_e
+        return (loss_c, loss_s, loss_tv)

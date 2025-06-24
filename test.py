@@ -22,9 +22,11 @@ def test_transform(size, crop):
     return transform
 
 
-def style_transfer(vgg, decoder, content, style, alpha=1.0, interpolation_weights=None):
-    assert 0.0 <= alpha <= 1.0
-    c_map, s_map, feat1, feat2 = network.generate_image(content, style, alpha=alpha)
+def style_transfer(vgg, decoder, content, style, interpolation_weights=None):
+    assert 0.0 <= interpolation_weights <= 1.0
+    c_map, s_map, feat1, feat2 = network.generate_image(
+        content, style, alpha=interpolation_weights
+    )
     return decoder(feat1, feat2)
 
 
@@ -164,6 +166,7 @@ for content_path in content_paths:
         output_name = output_dir / "{:s}_interpolation{:s}".format(
             content_path.stem, args.save_ext
         )
+        print("done", output_name)
         save_image(output, str(output_name))
 
     else:  # process one content and one style
@@ -181,4 +184,5 @@ for content_path in content_paths:
             output_name = output_dir / "{:s}_stylized_{:s}{:s}".format(
                 content_path.stem, style_path.stem, args.save_ext
             )
+            print("done", output_name)
             save_image(output, str(output_name))
