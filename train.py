@@ -82,6 +82,7 @@ parser.add_argument("--max_iter", type=int, default=160000)
 parser.add_argument("--batch_size", type=int, default=8)
 parser.add_argument("--style_weight", type=float, default=10.0)
 parser.add_argument("--content_weight", type=float, default=1.0)
+parser.add_argument("--tv_weight", type=float, default=0.5)
 parser.add_argument("--n_threads", type=int, default=16)
 parser.add_argument("--save_model_interval", type=int, default=10000)
 args = parser.parse_args()
@@ -134,7 +135,7 @@ for i in tqdm(range(args.max_iter)):
     loss_c, loss_s, loss_tv = network(content_images, style_images)
     loss_c = args.content_weight * loss_c
     loss_s = args.style_weight * loss_s
-    loss_tv = 0.05 * loss_tv  # 0.05
+    loss_tv = args.tv_weight * loss_tv  # 0.05
     # for now loss tv weight is 1, LEARN: this is belong to hyperparmeter tuning
     loss = loss_c + loss_s + loss_tv
 
@@ -145,9 +146,6 @@ for i in tqdm(range(args.max_iter)):
     writer.add_scalar("loss_content", loss_c.item(), i + 1)
     writer.add_scalar("loss_style", loss_s.item(), i + 1)
     writer.add_scalar("loss_totat_variation", loss_tv.item(), i + 1)
-
-    # print("loss_content: ", loss_c.item)
-    # print("loss_style: ", loss_s.item)
 
     if (i + 1) % args.save_model_interval == 0 or (i + 1) == args.max_iter:
         state_dict = network.decoder.state_dict()
