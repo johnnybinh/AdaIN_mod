@@ -134,7 +134,7 @@ for i in tqdm(range(args.max_iter)):
     loss_c, loss_s, loss_tv = network(content_images, style_images)
     loss_c = args.content_weight * loss_c
     loss_s = args.style_weight * loss_s
-    loss_tv = 1e-6 * loss_tv
+    loss_tv = 0.05 * loss_tv  # 0.05
     # for now loss tv weight is 1, LEARN: this is belong to hyperparmeter tuning
     loss = loss_c + loss_s + loss_tv
 
