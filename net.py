@@ -208,7 +208,7 @@ class Net(nn.Module):
         pixel_diff_horizontal = input[:, :, :, 1:] - input[:, :, :, :-1]
 
         return torch.sum(torch.abs(pixel_diff_vertical)) + torch.sum(
-            torch.abs(pixel_diff_vertical)
+            torch.abs(pixel_diff_horizontal)
         )
 
     def generate_image(self, content, style, alpha=1.0):
