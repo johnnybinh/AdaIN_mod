@@ -232,10 +232,12 @@ class Net(nn.Module):
         g_t_feats = self.encode_with_intermediate(g_t)
 
         loss_c = self.calc_content_loss(
-            g_t_feats[-1], content_feats[-1]
+            g_t_feats[0], content_feats[0]
         )  # compare with the content
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
-        loss_tv = self.calc_total_variation_loss(g_t)
+        # loss_tv = self.calc_total_variation_loss(g_t)
+        for i in range(1, 4):
+            loss_c = self.calc_content_loss(g_t_feats[i], content_feats[i])
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
-        return (loss_c, loss_s, loss_tv)
+        return (loss_c, loss_s)
