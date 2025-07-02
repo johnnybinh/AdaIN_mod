@@ -132,18 +132,18 @@ for i in tqdm(range(args.max_iter)):
     adjust_learning_rate(optimizer, iteration_count=i)
     content_images = next(content_iter).to(device)
     style_images = next(style_iter).to(device)
-    loss_c, loss_s, loss_tv = network(content_images, style_images)
+    loss_c, loss_s = network(content_images, style_images)
     loss_c = args.content_weight * loss_c
     loss_s = args.style_weight * loss_s
-    if i >= args.max_iter - 5000:
-        # 0.05
-        loss_tv = args.tv_weight * loss_tv
+    # if i >= args.max_iter - 5000:
+    #     # 0.05
+    #     loss_tv = args.tv_weight * loss_tv
 
-    else:
-        loss_tv = 0 * loss_tv
+    # else:
+    #     loss_tv = 0 * loss_tv
 
     # for now loss tv weight is 1, LEARN: this is belong to hyperparmeter tuning
-    loss = loss_c + loss_s + loss_tv
+    loss = loss_c + loss_s
 
     optimizer.zero_grad()
     loss.backward()
@@ -151,8 +151,8 @@ for i in tqdm(range(args.max_iter)):
 
     writer.add_scalar("loss_content", loss_c.item(), i + 1)
     writer.add_scalar("loss_style", loss_s.item(), i + 1)
-    writer.add_scalar("loss_totat_variation", loss_tv.item(), i + 1)
-    writer.add_scalar("total_loss", loss_c.item() + loss_s.item() + loss_tv.item())
+    # writer.add_scalar("loss_totat_variation", loss_tv.item(), i + 1)
+    # writer.add_scalar("total_loss", loss_c.item() + loss_s.item() + loss_tv.item())
 
     if (i + 1) % args.save_model_interval == 0 or (i + 1) == args.max_iter:
         state_dict = network.decoder.state_dict()
