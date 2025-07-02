@@ -137,7 +137,7 @@ for i in tqdm(range(args.max_iter)):
     loss_s = args.style_weight * loss_s
     if i < 10000:
         # 0.05
-        loss_tv = 0 * loss.tv
+        loss_tv = 0 * loss_tv
     else:
         loss_tv = args.tv_weight * loss_tv
     # for now loss tv weight is 1, LEARN: this is belong to hyperparmeter tuning
