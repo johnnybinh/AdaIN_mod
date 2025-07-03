@@ -254,7 +254,7 @@ class Net(nn.Module):
             g_t_feats[1], style_feats[1]
         ) + self.calc_style_loss(g_t_feats[-1], style_feats[-1])
 
-        loss_laplacian = self.calc_lapc_loss(g_t, content)
+        loss_laplacian = self.calc_lapc_loss(g_t, content, kernel_size=3)
 
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
