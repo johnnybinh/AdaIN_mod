@@ -207,12 +207,13 @@ class Net(nn.Module):
         input = avgPool(input)
         target = avgPool(target)
 
-        laplacianFilter = k.filters.laplacian(
-            kernel_size=(3, 3), normalized=True, border_type="reflect"
+        input_laplacian = k.filters.laplacian(
+            input, kernel_size=(3, 3), normalized=True, border_type="reflect"
         )
 
-        input_laplacian = laplacianFilter(input)
-        target_laplacian = laplacianFilter(target)
+        target_laplacian = k.filters.laplacian(
+            target, kernel_size=(3, 3), normalized=True, border_type="reflect"
+        )
 
         return torch.mse(input_laplacian, target_laplacian)
 
