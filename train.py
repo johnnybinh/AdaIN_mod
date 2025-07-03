@@ -145,6 +145,8 @@ for i in tqdm(range(args.max_iter)):
 
     writer.add_scalar("loss_content", loss_c.item(), i + 1)
     writer.add_scalar("loss_style", loss_s.item(), i + 1)
+    writer.add_scalar("loss_lap", loss_lap.item(), i + 1)
+
     # writer.add_scalar("loss_totat_variation", loss_tv.item(), i + 1)
     # writer.add_scalar("total_loss", loss_c.item() + loss_s.item() + loss_tv.item())
 
