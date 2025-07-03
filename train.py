@@ -82,7 +82,7 @@ parser.add_argument("--max_iter", type=int, default=160000)
 parser.add_argument("--batch_size", type=int, default=8)
 parser.add_argument("--style_weight", type=float, default=10.0)
 parser.add_argument("--content_weight", type=float, default=1.0)
-parser.add_argument("--tv_weight", type=float, default=0.5)
+parser.add_argument("--lap_weight", type=float, default=1.0)
 parser.add_argument("--n_threads", type=int, default=16)
 parser.add_argument("--save_model_interval", type=int, default=10000)
 args = parser.parse_args()
@@ -128,21 +128,15 @@ style_iter = iter(
 
 optimizer = torch.optim.Adam(network.decoder.parameters(), lr=args.lr)
 
+
 for i in tqdm(range(args.max_iter)):
     adjust_learning_rate(optimizer, iteration_count=i)
     content_images = next(content_iter).to(device)
     style_images = next(style_iter).to(device)
-    loss_c, loss_s = network(content_images, style_images)
+    loss_c, loss_s, loss_lap = network(content_images, style_images)
     loss_c = args.content_weight * loss_c
-    loss_s = args.style_weight * loss_s
-    # if i >= args.max_iter - 5000:
-    #     # 0.05
-    #     loss_tv = args.tv_weight * loss_tv
-
-    # else:
-    #     loss_tv = 0 * loss_tv
-
-    # for now loss tv weight is 1, LEARN: this is belong to hyperparmeter tuning
+    loss_s = args.style_weight * loss_s  # remove loss tv
+    loss_lap = args.lap_weight * loss_lap
     loss = loss_c + loss_s
 
     optimizer.zero_grad()

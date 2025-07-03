@@ -200,6 +200,22 @@ class Net(nn.Module):
             input_std, target_std
         )
 
+    def calc_lapc_loss(self, input, target, kernel_size):
+        # input, target B,3,H,W
+        assert input.size() == target.size()
+        avgPool = nn.AvgPool2d(kernel_size=kernel_size, padding=0)
+        input = avgPool(input)
+        target = avgPool(target)
+
+        laplacianFilter = k.filters.laplacian(
+            kernel_size=(3, 3), normalized=True, border_type="reflect"
+        )
+
+        input_laplacian = laplacianFilter(input)
+        target_laplacian = laplacianFilter(target)
+
+        return torch.mse(input_laplacian, target_laplacian)
+
     def calc_total_variation_loss(self, input):
         # input [b,c,h,w]
         # 1: mean take everything but not the first row/column
@@ -234,10 +250,12 @@ class Net(nn.Module):
         loss_c = self.calc_content_loss(
             g_t_feats[0], content_feats[0]
         )  # compare with the content
-        loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
-        # loss_tv = self.calc_total_variation_loss(g_t)
-        for i in range(1, 4):
-            loss_c = self.calc_content_loss(g_t_feats[i], content_feats[i])
+        loss_s = self.calc_style_loss(
+            g_t_feats[1], style_feats[1]
+        ) + self.calc_style_loss(g_t_feats[-1], style_feats[-1])
+
+        loss_laplacian = self.calc_lapc_loss(g_t, content)
+
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
-        return (loss_c, loss_s)
+        return (loss_c, loss_s, loss_laplacian)
