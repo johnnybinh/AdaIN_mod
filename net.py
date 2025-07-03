@@ -215,7 +215,7 @@ class Net(nn.Module):
             target, kernel_size=(3, 3), normalized=True, border_type="reflect"
         )
 
-        return torch.mse(input_laplacian, target_laplacian)
+        return self.mse_loss(input_laplacian, target_laplacian)
 
     def calc_total_variation_loss(self, input):
         # input [b,c,h,w]
