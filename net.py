@@ -3,7 +3,6 @@ import torch
 from torchvision import models
 from function import adaptive_instance_normalization as adain
 from function import calc_mean_std
-from function import calc_gram_matrix
 import kornia as k
 
 decoder = nn.Sequential()
@@ -217,17 +216,6 @@ class Net(nn.Module):
 
         return self.mse_loss(input_laplacian, target_laplacian)
 
-    def calc_total_variation_loss(self, input):
-        # input [b,c,h,w]
-        # 1: mean take everything but not the first row/column
-        # :-1 dont take the last
-        pixel_diff_vertical = input[:, :, 1:, :] - input[:, :, :-1, :]
-        pixel_diff_horizontal = input[:, :, :, 1:] - input[:, :, :, :-1]
-
-        return torch.sum(torch.abs(pixel_diff_vertical)) + torch.sum(
-            torch.abs(pixel_diff_horizontal)
-        )
-
     def generate_image(self, content, style, alpha=1.0):
         assert 0 <= alpha <= 1
         style_feats = self.encode_with_intermediate(style)
@@ -251,9 +239,9 @@ class Net(nn.Module):
         loss_c = self.calc_content_loss(
             g_t_feats[-1], content_feats[-1]
         )  # compare with the content
+        loss_lap = self.calc_lapc_loss(g_t, content, kernel_size=3)
 
-        # loss_laplacian = self.calc_lapc_loss(g_t, content, kernel_size=3)
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
-        return (loss_c, loss_s)
+        return (loss_c, loss_s, loss_lap)

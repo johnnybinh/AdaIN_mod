@@ -133,11 +133,11 @@ for i in tqdm(range(args.max_iter)):
     adjust_learning_rate(optimizer, iteration_count=i)
     content_images = next(content_iter).to(device)
     style_images = next(style_iter).to(device)
-    loss_c, loss_s = network(content_images, style_images)
+    loss_c, loss_s, loss_lap = network(content_images, style_images)
     loss_c = args.content_weight * loss_c
     loss_s = args.style_weight * loss_s  # remove loss tv
-    # loss_lap = args.lap_weight * loss_lap
-    loss = loss_c + loss_s
+    loss_lap = args.lap_weight * loss_lap
+    loss = loss_c + loss_s + loss_lap
 
     optimizer.zero_grad()
     loss.backward()
@@ -145,7 +145,7 @@ for i in tqdm(range(args.max_iter)):
 
     writer.add_scalar("loss_content", loss_c.item(), i + 1)
     writer.add_scalar("loss_style", loss_s.item(), i + 1)
-    # writer.add_scalar("loss_lap", loss_lap.item(), i + 1)
+    writer.add_scalar("loss_lap", loss_lap.item(), i + 1)
 
     # writer.add_scalar("loss_totat_variation", loss_tv.item(), i + 1)
     # writer.add_scalar("total_loss", loss_c.item() + loss_s.item() + loss_tv.item())
