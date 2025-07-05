@@ -253,7 +253,7 @@ class Net(nn.Module):
         )  # compare with the content
 
         # loss_laplacian = self.calc_lapc_loss(g_t, content, kernel_size=3)
-
+        loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
         return (loss_c, loss_s)
