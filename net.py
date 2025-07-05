@@ -205,7 +205,7 @@ class Net(nn.Module):
         assert input.size() == target.size()
         # convert to rgb
         input = k.color.rgb_to_grayscale(input)
-        target = k.color.rgb_to_grayscale(input)
+        target = k.color.rgb_to_grayscale(target)
         # avg_pool2d
         input = F.avg_pool2d(input, kernel_size=3, padding=0)
         target = F.avg_pool2d(target, kernel_size=3, padding=0)
@@ -238,7 +238,6 @@ class Net(nn.Module):
 
         g_t = self.decoder(t1, t2)
 
-        print(g_t.shape, content.shape)
         # g_t shape(b,c,h,w)
         g_t_feats = self.encode_with_intermediate(g_t)
 
