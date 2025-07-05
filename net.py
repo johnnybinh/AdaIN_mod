@@ -249,7 +249,7 @@ class Net(nn.Module):
         g_t_feats = self.encode_with_intermediate(g_t)
 
         loss_c = self.calc_content_loss(
-            g_t_feats[0], content_feats[0]
+            g_t_feats[-1], content_feats[-1]
         )  # compare with the content
         loss_s = self.calc_style_loss(
             g_t_feats[1], style_feats[1]
