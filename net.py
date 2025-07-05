@@ -238,7 +238,7 @@ class Net(nn.Module):
 
         g_t = self.decoder(t1, t2)
 
-        print(g_t.shape())
+        print(g_t.shape, content.shape)
         # g_t shape(b,c,h,w)
         g_t_feats = self.encode_with_intermediate(g_t)
 
