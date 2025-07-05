@@ -251,9 +251,6 @@ class Net(nn.Module):
         loss_c = self.calc_content_loss(
             g_t_feats[-1], content_feats[-1]
         )  # compare with the content
-        loss_s = self.calc_style_loss(
-            g_t_feats[1], style_feats[1]
-        ) + self.calc_style_loss(g_t_feats[-1], style_feats[-1])
 
         # loss_laplacian = self.calc_lapc_loss(g_t, content, kernel_size=3)
 
