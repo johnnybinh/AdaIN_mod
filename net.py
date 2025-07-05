@@ -4,6 +4,7 @@ from torchvision import models
 from function import adaptive_instance_normalization as adain
 from function import calc_mean_std
 import kornia as k
+import torch.nn.functional as F
 
 decoder = nn.Sequential()
 
@@ -202,10 +203,13 @@ class Net(nn.Module):
     def calc_lapc_loss(self, input, target, kernel_size):
         # input, target B,3,H,W
         assert input.size() == target.size()
-        avgPool = nn.AvgPool2d(kernel_size=kernel_size, padding=0)
-        input = avgPool(input)
-        target = avgPool(target)
-
+        # convert to rgb
+        input = k.color.rgb_to_grayscale(input)
+        target = k.color.rgb_to_grayscale(input)
+        # avg_pool2d
+        input = F.avg_pool2d(input, kernel_size=3, padding=0)
+        target = F.avg_pool2d(target, kernel_size=3, padding=0)
+        # calculate laplacian
         input_laplacian = k.filters.laplacian(
             input, kernel_size=(3, 3), normalized=True, border_type="reflect"
         )
@@ -213,7 +217,7 @@ class Net(nn.Module):
         target_laplacian = k.filters.laplacian(
             target, kernel_size=(3, 3), normalized=True, border_type="reflect"
         )
-
+        # return loss
         return self.mse_loss(input_laplacian, target_laplacian)
 
     def generate_image(self, content, style, alpha=1.0):
@@ -239,7 +243,7 @@ class Net(nn.Module):
         loss_c = self.calc_content_loss(
             g_t_feats[-1], content_feats[-1]
         )  # compare with the content
-        loss_lap = self.calc_lapc_loss(g_t, content, kernel_size=3)
+        loss_lap = self.calc_lapc_loss(g_t, content, kernel_size=4)
 
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
         for i in range(1, 4):
