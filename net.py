@@ -246,7 +246,9 @@ class Net(nn.Module):
         )  # compare with the content
         loss_lap = self.calc_lapc_loss(g_t, content, kernel_size=4)
 
-        loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
-        for i in range(1, 4):
-            loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
+        # calc style loss with relu1_1 and relu2_1 only
+        loss_s = self.calc_style_loss(
+            g_t_feats[0], style_feats[0]
+        ) + self.calc_style_loss(g_t_feats[1], style_feats[1])
+
         return (loss_c, loss_s, loss_lap)
