@@ -248,7 +248,7 @@ class Net(nn.Module):
 
         # calc style loss with relu1_1 and relu2_1 only
         loss_s = self.calc_style_loss(
-            g_t_feats[0], style_feats[0]
-        ) + self.calc_style_loss(g_t_feats[1], style_feats[1])
+            g_t_feats[1], style_feats[1]
+        ) + self.calc_style_loss(g_t_feats[2], style_feats[2])
 
         return (loss_c, loss_s, loss_lap)
