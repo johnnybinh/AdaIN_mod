@@ -226,13 +226,12 @@ class Net(nn.Module):
         assert 0 <= alpha <= 1
         style_feats = self.encode_with_intermediate(style)
         content_feat_immediate = self.encode_with_intermediate(content)
-        content_feat_immediate = CBAM(content_feat_immediate)
 
         # extract at relu2_1
-        t1 = adain(content_feat_immediate[1], style_feats[1])
+        t1 = adain(content_feat_immediate[1], CBAM(style_feats[1]))
         t1 = alpha * t1 + (1 - alpha) * content_feat_immediate[1]
         # extract at relu4_1
-        t2 = adain(content_feat_immediate[-1], style_feats[-1])
+        t2 = adain(content_feat_immediate[-1], CBAM(style_feats[-1]))
         t2 = alpha * t2 + (1 - alpha) * content_feat_immediate[-1]
         return style_feats, content_feat_immediate, t1, t2
 
