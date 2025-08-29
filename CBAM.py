@@ -46,17 +46,18 @@ class SAM(nn.Module):
             dilation=1,
         )
 
-    def foward(self, x):
+    def forward(self, x):
         max = torch.max(x, 1)[0].unsqueeze(1)
         mean = torch.mean(x, 1).unsqueeze(1)
         concat = torch.cat((max, mean), dim=1)
         f = self.conv(concat)
         f = F.sigmoid(f) * x  # F'' = F' * whatever the fuck just happen
+        return f
 
 
 class CBAM(nn.Module):
     def __init__(self, channels, r):
-        super(CBAM).__init__(channels, r)
+        super(CBAM, self).__init__()
         self.c = channels
         self.r = r
         self.SAM = SAM()
