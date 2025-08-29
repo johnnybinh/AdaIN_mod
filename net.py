@@ -5,6 +5,8 @@ from function import adaptive_instance_normalization as adain
 from function import calc_mean_std
 import kornia as k
 import torch.nn.functional as F
+from CBAM import CBAM
+
 
 decoder = nn.Sequential()
 
@@ -224,6 +226,7 @@ class Net(nn.Module):
         assert 0 <= alpha <= 1
         style_feats = self.encode_with_intermediate(style)
         content_feat_immediate = self.encode_with_intermediate(content)
+        content_feat_immediate = CBAM(content_feat_immediate)
 
         # extract at relu2_1
         t1 = adain(content_feat_immediate[1], style_feats[1])
