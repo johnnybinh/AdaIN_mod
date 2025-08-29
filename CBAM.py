@@ -67,3 +67,4 @@ class CBAM(nn.Module):
         output = self.CAM(x)
         output = self.SAM(output)
         output = output + x
+        return output
