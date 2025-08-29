@@ -222,7 +222,7 @@ class Net(nn.Module):
         # return loss
         return self.mse_loss(input_laplacian, target_laplacian)
 
-    def generate_image(self, content, style, alpha=1.0):
+    def generate_image(self, content, style, alpha):
         assert 0 <= alpha <= 1
         style_feats = self.encode_with_intermediate(style)
         content_feat_immediate = self.encode_with_intermediate(content)
@@ -236,7 +236,9 @@ class Net(nn.Module):
         return style_feats, content_feat_immediate, t1, t2
 
     def forward(self, content, style, alpha=1.0):
-        style_feats, content_feats, t1, t2 = self.generate_image(content, style)
+        style_feats, content_feats, t1, t2 = self.generate_image(
+            content, style, alpha=alpha
+        )
 
         g_t = self.decoder(t1, t2)
 
