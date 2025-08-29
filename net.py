@@ -166,6 +166,10 @@ class Net(nn.Module):
         self.enc_3 = nn.Sequential(*enc_layers[11:18])  # relu2_1 -> relu3_1
         self.enc_4 = nn.Sequential(*enc_layers[18:31])  # relu3_1 -> relu4_1
 
+        # CBAM
+        self.cbam1 = CBAM(128, 1)
+        self.cbam2 = CBAM(512, 1)
+
         self.decoder = Decoder().to(device)
         self.mse_loss = nn.MSELoss()
 
@@ -228,10 +232,10 @@ class Net(nn.Module):
         content_feat_immediate = self.encode_with_intermediate(content)
 
         # extract at relu2_1
-        t1 = adain(content_feat_immediate[1], CBAM(style_feats[1]))
+        t1 = adain(content_feat_immediate[1], self.cbam1(style_feats[1]))
         t1 = alpha * t1 + (1 - alpha) * content_feat_immediate[1]
         # extract at relu4_1
-        t2 = adain(content_feat_immediate[-1], CBAM(style_feats[-1]))
+        t2 = adain(content_feat_immediate[-1], self.cbam2(style_feats[-1]))
         t2 = alpha * t2 + (1 - alpha) * content_feat_immediate[-1]
         return style_feats, content_feat_immediate, t1, t2
 
