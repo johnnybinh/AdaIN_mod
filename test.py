@@ -142,9 +142,9 @@ vgg.to(device)
 
 network = net.Net(vgg, device)
 decoder = network.decoder
-decoder.load_state_dict(torch.load(args.decoder))
+network.load_state_dict(torch.load(args.decoder))
 
-net = net.Net(vgg, device)
+# net = net.Net(vgg, device)
 
 # transform content and style to tensor
 content_tf = test_transform(args.content_size, args.crop)

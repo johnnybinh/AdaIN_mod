@@ -151,8 +151,10 @@ for i in tqdm(range(args.max_iter)):
     # writer.add_scalar("total_loss", loss_c.item() + loss_s.item() + loss_tv.item())
 
     if (i + 1) % args.save_model_interval == 0 or (i + 1) == args.max_iter:
-        state_dict = network.decoder.state_dict()
+        state_dict = network.state_dict()
         for key in state_dict.keys():
             state_dict[key] = state_dict[key].to(torch.device("cpu"))
-        torch.save(state_dict, save_dir / "decoder_iter_{:d}.pth.tar".format(i + 1))
+        torch.save(
+            state_dict, save_dir / "network_iter_{:d}.pth.tar".format(i + 1)
+        )  # for saving both CBAM and Decoder state dict
 writer.close()
